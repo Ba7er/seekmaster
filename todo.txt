@@ -1,0 +1,4 @@
+1- research how to use env variables
+2- how to create dev-staging-prod environments
+3- dockerizing go 
+4- Handle 404 routes

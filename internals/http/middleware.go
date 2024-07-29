@@ -16,6 +16,7 @@ func SetJSONHeader() Adapter {
 	}
 }
 
+// @TODO write the logic for checking X-API-KEY
 func AuthenticateXAPIKey() Adapter {
 	return func(h Handler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {

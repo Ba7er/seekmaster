@@ -25,7 +25,7 @@ func Run() error {
 			AuthenticateXAPIKey(),
 		))
 	}
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":9100", mux)
 	// to be investigated
 	if !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("%s", err)

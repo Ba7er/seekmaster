@@ -11,7 +11,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		Name string `json:"name"`
 	}{
 		ID:   2,
-		Name: "Abed Dandashiiiii",
+		Name: "Abed Dandashi with docker ",
 	})
 	if err != nil {
 		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)

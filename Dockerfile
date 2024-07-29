@@ -5,7 +5,7 @@ FROM golang:1.22
 WORKDIR /app
 
 # Copy go mod and sum files
-COPY go.mod ./
+COPY go.mod go.sum ./
 
 # Download all dependencies
 RUN go mod download

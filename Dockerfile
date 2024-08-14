@@ -26,7 +26,7 @@ WORKDIR /root/
 COPY --from=0 /app/main .
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 9100
 
 # Run the binary
 CMD ["./main"]

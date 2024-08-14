@@ -2,3 +2,12 @@
 2- how to create dev-staging-prod environments
 3- dockerizing go 
 4- Handle 404 routes(proberly needs to restructure the server setup process)
+
+
+
+
+
+
+Notes:
+When dockerizing the app, make sure that the db is up and running first, otherwise it will throw an error 
+

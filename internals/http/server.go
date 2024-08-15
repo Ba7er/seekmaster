@@ -1,78 +1,82 @@
 package http
 
-// import (
-// 	"database/sql"
-// 	"errors"
-// 	"fmt"
-// 	"log"
-// 	"net/http"
+import (
+	"encoding/json"
+	"github/Ba7er/seekmaster/internals/handlers"
+	"net/http"
+	"time"
+)
 
-// 	"github.com/go-sql-driver/mysql"
-// )
+type route struct {
+	method  string
+	path    string
+	handler Handler
+}
 
-// // type route struct {
-// // 	method  string
-// // 	path    string
-// // 	handler Handler
-// // }
+var routes = []route{
+	{"GET", "/search", handlers.Search},
+}
 
-// var db *sql.DB
-
-// // Capture connection properties.
-// func connect() {
-// 	var cfg = mysql.Config{
-// 		User:   "myuser",
-// 		Passwd: "mypassword",
-// 		Net:    "tcp",
-// 		Addr:   "localhost:3306",
-// 		DBName: "myapp",
-// 	}
-// 	// Get a database handle.
-// 	var err error
-
-// 	db, err = sql.Open("mysql", cfg.FormatDSN())
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	pingErr := db.Ping()
-// 	if pingErr != nil {
-// 		log.Fatal(pingErr, "Error in connecting to DB")
-// 	}
-// 	// rows, err := db.Query("SELECT * FROM customers")
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// type customer struct {
-// 	// 	firstName string
-// 	// }
-// 	// for rows.Next() {
-// 	// 	var person customer
-// 	// 	rows.Scan(&person.firstName)
-// 	// 	fmt.Println(person)
-// 	// }
-// 	// defer rows.Close()
-// 	log.Print("Connected")
+// type CustomHandler struct {
+// 	mux *http.ServeMux
 // }
 
-// // var routes = []route{
-// // 	{"GET", "/search", handlers.Search},
-// // }
+// func (h *CustomHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	h.mux.ServeHTTP(w, r)
+// }
 
-// func Run() error {
-// 	connect()
-// 	mux := http.NewServeMux()
-// 	for _, v := range routes {
-// 		mux.HandleFunc(v.method+" "+v.path, Adapt(v.handler,
+// func (h *CustomHandler) registerHandlers() {
+// 	for _, r := range routes {
+// 		h.mux.HanleFunc(r.method+" "+r.path, Adapt(r.handler,
 // 			SetJSONHeader(),
 // 			AuthenticateXAPIKey(),
 // 		))
 // 	}
-// 	err := http.ListenAndServe(":9100", mux)
-// 	// to be investigated
-// 	if !errors.Is(err, http.ErrServerClosed) {
-// 		return fmt.Errorf("%s", err)
-// 	}
-// 	return nil
 // }
+
+type Server struct {
+	server *http.Server
+	routes *http.ServeMux
+}
+
+func NewServer() *Server {
+	//customHandler := CustomHandler{
+	//mux: http.NewServeMux(),
+	//}
+
+	//customHandler.registerHandlers()
+
+	server := &Server{
+
+		server: &http.Server{
+			Addr:           ":9100",
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		},
+
+		routes: http.NewServeMux(),
+	}
+
+	// for _, r := range routes {
+	server.routes.Handle("GET /hc", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := json.NewEncoder(w).Encode(&struct {
+			ID   int    `json:"id"`
+			Name string `json:"name"`
+		}{
+			ID:   2,
+			Name: "Abed Dandashi with docker and mysql3",
+		})
+		if err != nil {
+			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+		}
+	}))
+	//}
+	return server
+}
+
+func (s *Server) Open() {
+	s.server.Handler = s.routes
+	s.server.ListenAndServe()
+
+}

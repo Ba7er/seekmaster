@@ -1,8 +1,8 @@
 package http
 
 import (
-	"encoding/json"
-	"github/Ba7er/seekmaster/internals/handlers"
+	"fmt"
+	search "github/Ba7er/seekmaster/internals/services"
 	"net/http"
 	"time"
 )
@@ -14,39 +14,18 @@ type route struct {
 }
 
 var routes = []route{
-	{"GET", "/search", handlers.Search},
+	{"GET", "/search", Search},
 }
 
-// type CustomHandler struct {
-// 	mux *http.ServeMux
-// }
-
-// func (h *CustomHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-// 	h.mux.ServeHTTP(w, r)
-// }
-
-// func (h *CustomHandler) registerHandlers() {
-// 	for _, r := range routes {
-// 		h.mux.HanleFunc(r.method+" "+r.path, Adapt(r.handler,
-// 			SetJSONHeader(),
-// 			AuthenticateXAPIKey(),
-// 		))
-// 	}
-// }
-
 type Server struct {
-	server *http.Server
-	routes *http.ServeMux
+	serachService search.SearchService
+	server        *http.Server
+	router        *http.ServeMux
 }
 
 func NewServer() *Server {
-	//customHandler := CustomHandler{
-	//mux: http.NewServeMux(),
-	//}
 
-	//customHandler.registerHandlers()
-
-	server := &Server{
+	s := &Server{
 
 		server: &http.Server{
 			Addr:           ":9100",
@@ -55,28 +34,24 @@ func NewServer() *Server {
 			MaxHeaderBytes: 1 << 20,
 		},
 
-		routes: http.NewServeMux(),
+		router: http.NewServeMux(),
 	}
 
-	// for _, r := range routes {
-	server.routes.Handle("GET /hc", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := json.NewEncoder(w).Encode(&struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		}{
-			ID:   2,
-			Name: "Abed Dandashi with docker and mysql3",
-		})
-		if err != nil {
-			http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		}
-	}))
-	//}
-	return server
+	for _, r := range routes {
+		s.router.HandleFunc(r.method+" "+r.path, Adapt(r.handler,
+			SetJSONHeader(),
+			AuthenticateXAPIKey(),
+		))
+	}
+	res := s.serachService.SearchForSomething()
+	fmt.Println(res)
+
+	return s
 }
 
 func (s *Server) Open() {
-	s.server.Handler = s.routes
+	s.server.Handler = s.router
+	// @TODO: read about error handling when starting a server.
 	s.server.ListenAndServe()
 
 }

@@ -1,57 +1,76 @@
 package http
 
 import (
-	"fmt"
-	search "github/Ba7er/seekmaster/internals/services"
+	"database/sql"
+	"log"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
+
+type Adapter func(http.Handler) http.Handler
 
 type route struct {
 	method  string
 	path    string
-	handler Handler
-}
-
-var routes = []route{
-	{"GET", "/search", Search},
+	handler func(http.ResponseWriter, *http.Request)
 }
 
 type Server struct {
-	serachService search.SearchService
-	server        *http.Server
-	router        *http.ServeMux
+	server *http.Server
+	router *http.ServeMux
+	db     *sql.DB
+}
+
+// var routes = []route{
+// 	{"GET", "/search", Search},
+// }
+
+func (s *Server) ConnectDB() {
+	var cfg = mysql.Config{
+		User:   "myuser",
+		Passwd: "mypassword",
+		Net:    "tcp",
+		Addr:   "localhost:3306",
+		DBName: "myapp",
+	}
+	var err error
+	s.db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+	pingErr := s.db.Ping()
+	if pingErr != nil {
+		log.Fatal(pingErr)
+		//@TODO: Should we use code 1 or ?
+		os.Exit(1)
+	}
+	log.Print("Db is Connected")
+}
+
+func (s *Server) LoadRouters() {
+
+	s.router.Handle("GET /search", SetJSONHeader(http.HandlerFunc(s.Search)))
+	s.server.Handler = s.router
+}
+
+func (s *Server) Open() {
+	// @TODO: read about error handling when starting a server.
+	s.server.ListenAndServe()
 }
 
 func NewServer() *Server {
-
 	s := &Server{
-
 		server: &http.Server{
 			Addr:           ":9100",
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		},
-
 		router: http.NewServeMux(),
 	}
 
-	for _, r := range routes {
-		s.router.HandleFunc(r.method+" "+r.path, Adapt(r.handler,
-			SetJSONHeader(),
-			AuthenticateXAPIKey(),
-		))
-	}
-	res := s.serachService.SearchForSomething()
-	fmt.Println(res)
-
 	return s
-}
-
-func (s *Server) Open() {
-	s.server.Handler = s.router
-	// @TODO: read about error handling when starting a server.
-	s.server.ListenAndServe()
-
 }

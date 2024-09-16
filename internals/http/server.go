@@ -54,7 +54,7 @@ func (CustomHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) LoadRouters() {
 
 	//customHandler := &CustomHandler{}
-	s.router.Handle("GET /search", http.HandlerFunc(s.SearchHandler))
+	s.router.Handle("GET /search", SetJSONHeader(http.HandlerFunc(s.SearchHandler)))
 	s.server.Handler = s.router
 	//s.server.Handler = customHandler
 

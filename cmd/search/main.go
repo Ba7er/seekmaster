@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github/Ba7er/seekmaster/internals/http"
+	"github.com/Ba7er/seekmaster/internals/http"
 )
 
 func run() {

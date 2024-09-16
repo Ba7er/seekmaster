@@ -2,6 +2,7 @@ package http
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -10,23 +11,11 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-type Adapter func(http.Handler) http.Handler
-
-type route struct {
-	method  string
-	path    string
-	handler func(http.ResponseWriter, *http.Request)
-}
-
 type Server struct {
 	server *http.Server
 	router *http.ServeMux
 	db     *sql.DB
 }
-
-// var routes = []route{
-// 	{"GET", "/search", Search},
-// }
 
 func (s *Server) ConnectDB() {
 	var cfg = mysql.Config{
@@ -50,10 +39,25 @@ func (s *Server) ConnectDB() {
 	log.Print("Db is Connected")
 }
 
+type CustomHandler struct{}
+
+func (CustomHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	people := make(map[string]string)
+	people["name"] = "Abed"
+
+	if err := json.NewEncoder(w).Encode(people); err != nil {
+		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+		log.Printf("Error encoding JSON: %v", err)
+		return
+	}
+}
 func (s *Server) LoadRouters() {
 
-	s.router.Handle("GET /search", SetJSONHeader(http.HandlerFunc(s.Search)))
+	//customHandler := &CustomHandler{}
+	s.router.Handle("GET /search", http.HandlerFunc(s.SearchHandler))
 	s.server.Handler = s.router
+	//s.server.Handler = customHandler
+
 }
 
 func (s *Server) Open() {

@@ -1,6 +1,6 @@
 module github.com/Ba7er/seekmaster
 
-go 1.21.6
+go 1.23.1
 
 require github.com/go-sql-driver/mysql v1.8.1
 

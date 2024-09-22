@@ -2,7 +2,6 @@ package http
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -39,18 +38,6 @@ func (s *Server) ConnectDB() {
 	log.Print("Db is Connected")
 }
 
-type CustomHandler struct{}
-
-func (CustomHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	people := make(map[string]string)
-	people["name"] = "Abed"
-
-	if err := json.NewEncoder(w).Encode(people); err != nil {
-		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		log.Printf("Error encoding JSON: %v", err)
-		return
-	}
-}
 func (s *Server) LoadRouters() {
 
 	s.router.Handle("GET /search", SetJSONHeader(http.HandlerFunc(s.SearchHandler)))

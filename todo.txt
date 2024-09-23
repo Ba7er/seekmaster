@@ -1,32 +1,15 @@
-The current implemention is suitable only for simple tables and we are working on electronic example
-
-2- research how to use env variables
-3- how to create dev-staging-prod environments
-4- dockerizing go 
-
-
-
-
-
-
-
+todo:
+- make the error response as json
+- understand the behaviour when terminating or an error happened how to do grace shutdown
+- research how to use env variables
+- how to create dev-staging-prod environments
+- dockerizing go: When dockerizing the app, make sure that the db is up and running first, otherwise it will throw an error  
+- loggging
 query param
 limit---> how many items returned
 filter---> is to filter the result by a specific parameter
 
 look into relevance and ranking ...weighting 
 relavance ranking could be handled by sql itself (MAATCH & AGAINSTs)
-
-also look at Unified Search Index(it uses views)
-
-
-
-
-
-todo:
-1- create the database and populate it.
-
-Notes:
-When dockerizing the app, make sure that the db is up and running first, otherwise it will throw an error 
 
 

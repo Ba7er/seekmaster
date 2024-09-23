@@ -8,15 +8,21 @@ import (
 )
 
 func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
-	keywords := r.URL.Query()
+	q := r.URL.Query()
 
-	products, err := services.Search(keywords, s.db)
+	products, err := services.Search(q, s.db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	if err := json.NewEncoder(w).Encode(products); err != nil {
+	response := struct {
+		Success bool               `json:"success"`
+		Data    []services.Product `json:"data"`
+	}{
+		Success: true,
+		Data:    *products, // Use the products slice directly without dereferencing
+	}
+	if err := json.NewEncoder(w).Encode(&response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

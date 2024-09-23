@@ -6,25 +6,17 @@ import (
 	"net/url"
 )
 
-type SearchQueryParams struct {
-	q           string
-	brand       string
-	category    string
-	subCategory string
-	sort        string
-	limit       int
-}
-
 type Product struct {
-	Name        string
-	Description string
-	Price       float64
-	Category    string
-	SubCategory string
-	Brand       string
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Category    string  `json:"category"`
+	SubCategory string  `json:"subCategory"`
+	Brand       string  `json:"brand"`
 }
 
-func Search(keywords url.Values, db *sql.DB) (*[]Product, error) {
+func Search(q url.Values, db *sql.DB) (*[]Product, error) {
+	keyword := q["q"][0]
 
 	query := `	select
 							p.name,
@@ -43,7 +35,7 @@ func Search(keywords url.Values, db *sql.DB) (*[]Product, error) {
 							sc.sub_category_id = p.sub_category_id
 					WHERE p.name = ?`
 
-	rows, err := db.Query(query, keywords["q"][0])
+	rows, err := db.Query(query, keyword)
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
 	}
@@ -52,14 +44,16 @@ func Search(keywords url.Values, db *sql.DB) (*[]Product, error) {
 	for rows.Next() {
 		var product Product
 		if err := rows.Scan(&product.Name, &product.Description, &product.Price, &product.Brand, &product.Category, &product.SubCategory); err != nil {
+
 			return nil, fmt.Errorf("%s", err)
 		}
-		products = append(products, product)
-		fmt.Println(products[0])
-	}
 
+		products = append(products, product)
+
+	}
+	fmt.Println(products)
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error scanning row")
+		return nil, fmt.Errorf("%s", err)
 	}
 	return &products, nil
 }

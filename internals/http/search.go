@@ -15,12 +15,13 @@ func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	response := struct {
 		Success bool               `json:"success"`
 		Data    []services.Product `json:"data"`
 	}{
 		Success: true,
-		Data:    *products, // Use the products slice directly without dereferencing
+		Data:    products,
 	}
 	if err := json.NewEncoder(w).Encode(&response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

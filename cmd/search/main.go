@@ -7,7 +7,7 @@ import (
 func run() {
 
 	server := http.NewServer()
-	server.ConnectDB()
+	server.InitDatabaseConnection()
 	server.LoadRouters()
 	server.Open()
 

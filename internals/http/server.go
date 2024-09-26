@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -16,7 +15,7 @@ type Server struct {
 	db     *sql.DB
 }
 
-func (s *Server) ConnectDB() {
+func (s *Server) InitDatabaseConnection() {
 	var cfg = mysql.Config{
 		User:   "myuser",
 		Passwd: "mypassword",
@@ -32,8 +31,6 @@ func (s *Server) ConnectDB() {
 	pingErr := s.db.Ping()
 	if pingErr != nil {
 		log.Fatal(pingErr)
-		//@TODO: Should we use code 1 or ?
-		os.Exit(1)
 	}
 	log.Print("Db is Connected")
 }
@@ -47,7 +44,10 @@ func (s *Server) LoadRouters() {
 
 func (s *Server) Open() {
 	// @TODO: read about error handling when starting a server.
-	s.server.ListenAndServe()
+	err := s.server.ListenAndServe()
+	if err != nil {
+		log.Fatalf("Couldn't start the server %s\n", err)
+	}
 }
 
 func NewServer() *Server {

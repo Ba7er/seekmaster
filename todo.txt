@@ -5,6 +5,7 @@ todo:
 - how to create dev-staging-prod environments
 - dockerizing go: When dockerizing the app, make sure that the db is up and running first, otherwise it will throw an error  
 - loggging
+- database setup best practices
 query param
 limit---> how many items returned
 filter---> is to filter the result by a specific parameter

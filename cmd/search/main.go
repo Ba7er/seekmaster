@@ -9,7 +9,7 @@ func run() {
 	server := http.NewServer()
 	server.InitDatabaseConnection()
 	server.LoadRouters()
-	server.Open()
+	server.Start()
 
 }
 func main() {

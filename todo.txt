@@ -14,3 +14,8 @@ look into relevance and ranking ...weighting
 relavance ranking could be handled by sql itself (MAATCH & AGAINSTs)
 
 
+pagination keywords:
+sort
+q---> query 
+limit 
+page--->as offset
